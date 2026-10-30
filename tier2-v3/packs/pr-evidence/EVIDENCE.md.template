@@ -1,5 +1,9 @@
 # PR evidence — {{TITLE}}
 
+Read this with the pull request description. The description should say, in plain sentences, what changed and how to review it. These notes are the detail behind those sentences.
+
+
+
 | Field | Value |
 | --- | --- |
 | PR / branch | {{BRANCH}} |

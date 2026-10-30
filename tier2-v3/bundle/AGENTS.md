@@ -16,7 +16,8 @@ Implement only what is specified under `spec/`, consistent with `.specify/memory
 
 1. Map work to a `spec/features/*.feature` scenario or an explicit tasks.md item.
 2. Attach or update `docs/pr-evidence.md` (see PR evidence pack).
-3. Do not merge your own PR. Do not weaken checkpoint-gate checks.
+3. Write the pull request description in plain technical language. Say what changed, then how to review it: which spec to read, which files to open, what to run, and what a correct result looks like. Leave the review receipt for the human reviewer.
+4. Do not merge your own PR. Do not weaken checkpoint-gate checks.
 
 ## Repo conventions
 

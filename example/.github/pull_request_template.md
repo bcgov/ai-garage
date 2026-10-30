@@ -1,39 +1,47 @@
-## Summary
+## What changed
 
-<!-- What user-visible change does this PR make? -->
+<!-- A few sentences in plain technical language.
+     Say what is different, and why.
+     Name the screen, endpoint, or file a reviewer would recognize.
+     If this fixes a finding, name it (for example VULN-001). -->
 
-## Spec traceability
+## How to review this
 
-- Spec / feature: <!-- e.g. spec/features/….feature -->
-- Criterion IDs: <!-- e.g. @R-14.1 -->
-- Task: <!-- e.g. TASK-001 -->
-- Constitution articles: <!-- e.g. P1, P2 -->
+<!-- Ordered steps for the person reviewing. Be specific.
+     1. Which spec or feature to read, and what "done" means there.
+     2. Which files to open, and what to compare.
+     3. What command to run, and what a correct result looks like.
+     4. If live proof applies: open the before recording, then the after recording.
+        The first shows the bug. The second shows that same check failing. -->
+
+1. Read …
+2. Open …
+3. Run …
+
+## Where this comes from
+
+- Spec or feature: <!-- spec/features/….feature or a section of spec/spec.md -->
+- Scenario: <!-- the behaviour this pull request is supposed to satisfy -->
+- Finding-Id: <!-- VULN-001, or "none" -->
 
 ## Live proof
 
 Live-proof: not-applicable
 
-<!-- required | unavailable | not-applicable
+<!-- Change the line above to one of: required | unavailable | not-applicable
      Also add the GitHub label live-proof or live-proof-unavailable.
-     required: Finding-Id: VULN-001
-       spec PR needs docs/live-proof/<id>/before.md with `verdict: confirmed`
-       implementation PR also needs after.md in the diff with `verdict: closed`
-     unavailable: spec line `Live proof unavailable: VULN-001 — reason` -->
+     required: Finding-Id must be set.
+       A spec pull request needs docs/live-proof/<id>/before.md with `verdict: confirmed`.
+       An implementation pull request also needs after.md in this diff with `verdict: closed`.
+     unavailable: spec/spec.md contains `Live proof unavailable: FINDING-ID — reason`. -->
 
-## PR evidence
+## Review receipt
 
-- [ ] `docs/pr-evidence.md` updated (or N/A — docs-only)
+<!-- The reviewer fills this in before merge. The author leaves the headings.
+     Do not mark this pull request approved in this section. -->
 
-## Review receipt (checkpoint 3 — implementation PRs)
+**Checked:** <!-- what you opened and compared -->
 
-<!-- Required before merge per REVIEW.md. Delete this section for docs-only PRs. -->
+**Could not check:** <!-- what you did not run or could not see -->
 
-**Checked:** <!-- criterion IDs, scenarios, spec sections verified -->
-
-**Could not check:** <!-- what you lacked time, access, or environment to verify -->
-
-**Residual risk:** <!-- accepted on trust or deferred to a follow-up issue -->
-
-## Test plan
-
-- [ ] …
+**Residual risk:** <!-- anything you are accepting or leaving for a later change -->

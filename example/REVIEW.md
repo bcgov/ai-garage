@@ -1,5 +1,11 @@
 # Review instructions
 
+## How to write the review
+
+Write in plain technical language. Say which files you opened, what you compared them to, and whether the change does what the spec says. Say what you could not check. A concrete sentence is more useful than a process label.
+
+The pull request description should already contain **How to review this**. Follow those steps, then write down where they were wrong or incomplete.
+
 ## Passes
 Run three passes; tag each finding:
 - **Bugs** — logic errors, broken edge cases, subtle regressions

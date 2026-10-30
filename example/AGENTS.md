@@ -36,6 +36,14 @@ This repository is enrolled in **Tier 2** of the BC Gov agentic SDLC pattern.
 2. Plan / architecture approval  
 3. Review & ship (no agent self-merge)
 
+### Pull request text
+
+Write the pull request description in plain technical language. Use `.github/pull_request_template.md`.
+
+- **What changed** — what is different, and why, in a few sentences. Name the screen, endpoint, or file a reviewer would recognize.
+- **How to review this** — ordered steps: which spec to read, which files to open, what command to run, and what a correct result looks like. If live proof applies, point at the before recording and the after recording.
+- Leave the **Review receipt** headings for the human reviewer. Do not approve your own pull request.
+
 ### Evidence
 
 Update `docs/pr-evidence.md` on implementation PRs (`node .github/tier2-v3/packs/pr-evidence/generate.mjs`).

@@ -121,6 +121,9 @@ let customInstructions =
     "Follow AGENTS.md and the repository constitution (constitution.md / .specify/memory/constitution.md).",
     "Implement only what the issue acceptance criteria and linked spec/features require.",
     "Open a draft pull request. Do not merge.",
+    "Write the pull request description in plain technical language, using the repository pull request template.",
+    "Under What changed, say what is different and why. Under How to review this, give ordered steps: which spec to read, which files to open, what command to run, and what a correct result looks like.",
+    "Leave the Review receipt headings for the human reviewer.",
     "Update docs/pr-evidence.md when touching implementation paths.",
     "Prefer B.C. Design System components for UI; meet WCAG 2.1 AA.",
   ].join(" ");

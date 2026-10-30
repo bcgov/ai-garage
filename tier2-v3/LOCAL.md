@@ -105,7 +105,7 @@ Implementation PRs that only change evidence fail the checkpoint gate.
 
    > Implement issue #N / TASK-00X per `spec/features/….feature`.
    > Follow AGENTS.md and constitution. Query Design System MCP for any UI.
-   > Open a draft PR; append `docs/pr-evidence.md` (`generate.mjs --finding … --append`). Do not merge.
+   > Open a draft PR. Write the description in plain language: what changed, then how to review it (which files to open, what to run, what a correct result looks like). Append `docs/pr-evidence.md` (`generate.mjs --finding … --append`). Do not merge.
 
 5. **Review locally** — run app/tests; skim diff vs acceptance criteria.
 6. **Push branch + draft PR** — Tier 2 checkpoint gate + spec review run on GitHub.

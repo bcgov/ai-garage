@@ -63,13 +63,13 @@ const body = `${prMeta.title || ""}\n${prMeta.body || ""}`;
 
 if (touchesImpl) {
   if (!existsSync(path.join(root, "spec/spec.md"))) {
-    findings.push({ severity: "error", code: "no_spec", message: "Implementation PR but spec/spec.md missing" });
+    findings.push({ severity: "error", code: "no_spec", message: "This pull request changes application code, and spec/spec.md is missing." });
   }
   if (!/spec\/|features\/|#\d+|TASK-/i.test(body) && !touchesSpec) {
     findings.push({
       severity: "warning",
       code: "no_spec_trace",
-      message: "PR body should link a spec section, feature file, or task id",
+      message: "The description does not point at a spec section, a feature file, or a task. Add that link under Where this comes from.",
     });
   }
   const evidencePath = cfg.spec_review?.evidence_path || "docs/pr-evidence.md";
@@ -79,7 +79,7 @@ if (touchesImpl) {
     findings.push({
       severity: "warning",
       code: "no_evidence",
-      message: `Missing ${evidencePath} — generate with packs/pr-evidence/generate.mjs`,
+        message: `There is no ${evidencePath} yet. Add the evidence notes for this change.`,
     });
   }
   const featureDir = path.join(root, "spec/features");
@@ -88,7 +88,7 @@ if (touchesImpl) {
       .split("\n")
       .filter((f) => f.endsWith(".feature"));
     if (features.length === 0) {
-      findings.push({ severity: "error", code: "no_features", message: "No spec/features/*.feature files" });
+      findings.push({ severity: "error", code: "no_features", message: "There are no feature files under spec/features yet, so there is nothing to review the change against." });
     }
   }
   const requireReceipt = cfg.spec_review?.require_receipt !== false;
@@ -102,7 +102,7 @@ if (touchesImpl) {
         severity: "warning",
         code: "no_review_receipt",
         message:
-          "Implementation PR should include a review receipt (Checked / Could not check / Residual risk) per REVIEW.md",
+          "The description needs a Review receipt with Checked, Could not check, and Residual risk, so the reviewer can say what they actually looked at.",
       });
     }
   }
@@ -204,21 +204,32 @@ function redactionCheck(text, denyList) {
   return hits;
 }
 
+const whereToLook = touchesImpl
+  ? "This pull request changes application code. Read the description's How to review this section, then open the files it names and compare them to the spec."
+  : touchesSpec
+    ? "This pull request changes the spec or the plan. Read What changed, then check that the spec says what will be built, in language a reviewer can test."
+    : "This pull request does not change application code. Read What changed and confirm the notes match the files in the diff.";
+
+const checkSummary =
+  status === "PASS"
+    ? "Automated checks found nothing that blocks a person from reviewing."
+    : status === "WARN"
+      ? "Automated checks found gaps. They do not replace the review below."
+      : "Automated checks failed. Fix those before spending time on the rest of the review.";
+
 const comment = [
-  `### Tier 2 spec review · \`${status}\``,
+  "### How to review this pull request",
   "",
-  `| | |`,
-  `| --- | --- |`,
-  `| Touches implementation | ${touchesImpl} |`,
-  `| Touches spec | ${touchesSpec} |`,
-  `| Findings | ${findings.length} |`,
+  whereToLook,
+  "",
+  checkSummary,
   "",
   ...(findings.length
-    ? findings.map((f) => `- **${f.severity}** \`${f.code}\`: ${f.message}`)
-    : ["- No blocking findings from heuristic checks."]),
+    ? ["What to fix or confirm:", "", ...findings.map((f) => `- ${f.message}`)]
+    : ["Nothing else turned up in the automated checks."]),
   "",
-  llmNote ? `## Agent notes\n\n${llmNote}\n` : "",
-  "_Tier 2 v3 pattern — human still owns checkpoint 3 (merge)._",
+  llmNote ? `## Notes\n\n${llmNote}\n` : "",
+  "A person still has to merge this. The review receipt at the bottom of the description is where that person records what they checked.",
 ].join("\n");
 
 const denyList = buildDenyList(cfg);

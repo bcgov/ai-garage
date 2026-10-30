@@ -85,7 +85,8 @@ Add a short always-on rule / skill in whatever format your agent supports, for e
 ```markdown
 Follow AGENTS.md. Implement only from signed spec/features and tasks.
 Query bc-design-system MCP before UI. Do not merge; open a draft PR.
-Update docs/pr-evidence.md on implementation changes.
+Update docs/pr-evidence.md on implementation changes (append: `generate.mjs --finding ID --append`).
+Implementation PRs that only change evidence fail the checkpoint gate.
 ```
 
 ## 5. Typical local task loop
@@ -104,7 +105,7 @@ Update docs/pr-evidence.md on implementation changes.
 
    > Implement issue #N / TASK-00X per `spec/features/….feature`.
    > Follow AGENTS.md and constitution. Query Design System MCP for any UI.
-   > Open a draft PR; update `docs/pr-evidence.md`. Do not merge.
+   > Open a draft PR. Write the description in plain language: what changed, then how to review it (which files to open, what to run, what a correct result looks like). Append `docs/pr-evidence.md` (`generate.mjs --finding … --append`). Do not merge.
 
 5. **Review locally** — run app/tests; skim diff vs acceptance criteria.
 6. **Push branch + draft PR** — Tier 2 checkpoint gate + spec review run on GitHub.
