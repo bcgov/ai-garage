@@ -1,0 +1,11 @@
+# Human-readable mirror — runtime config is tier1.config.json (see example JSON).
+# agent.mode: heuristic | auto | llm | gh-aw
+version: 1
+project: my-service
+agent:
+  mode: auto
+  llm:
+    base_url: https://api.openai.com/v1
+    model: gpt-4o-mini
+    api_key_env: TIER1_LLM_API_KEY
+    api_style: openai
