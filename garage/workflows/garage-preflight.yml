@@ -1,0 +1,26 @@
+name: Garage / Preflight
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "garage.config.json"
+      - ".github/workflows/garage-*.yml"
+      - ".github/garage/**"
+      - "AGENTS.md"
+      - "constitution.md"
+      - "spec/**"
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preflight
+        run: node .github/garage/preflight.mjs --root "$GITHUB_WORKSPACE"

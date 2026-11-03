@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "project": "legacy",
+  "triage": { "enabled": true, "min_body_length": 80 }
+}

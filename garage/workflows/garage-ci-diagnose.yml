@@ -1,0 +1,42 @@
+name: Garage / CI diagnose
+
+on:
+  workflow_run:
+    # IMPORTANT: list the `name:` of CI workflows to watch (GitHub has no wildcard).
+    # Add your real pipeline names here after enrol.
+    workflows:
+      - "CI"
+      - "Tests"
+      - "Build"
+      - "test"
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  diagnose:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Diagnose failed run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          GARAGE_LLM_API_KEY: ${{ secrets.GARAGE_LLM_API_KEY || secrets.SDLC_LLM_API_KEY || secrets.TIER1_LLM_API_KEY }}
+          GARAGE_LLM_BASE_URL: ${{ secrets.GARAGE_LLM_BASE_URL || secrets.SDLC_LLM_BASE_URL || secrets.TIER1_LLM_BASE_URL }}
+          GARAGE_LLM_MODEL: ${{ vars.GARAGE_LLM_MODEL || vars.SDLC_LLM_MODEL || vars.TIER1_LLM_MODEL }}
+          GARAGE_LLM_API_STYLE: ${{ vars.GARAGE_LLM_API_STYLE || vars.SDLC_LLM_API_STYLE || vars.TIER1_LLM_API_STYLE }}
+          GARAGE_LLM_API_VERSION: ${{ vars.GARAGE_LLM_API_VERSION || vars.SDLC_LLM_API_VERSION || vars.TIER1_LLM_API_VERSION }}
+        run: node .github/garage/ci-diagnose.mjs

@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "project": "legacy",
+  "checkpoints": { "impl_path_prefixes": ["src/"] },
+  "live_proof": { "enabled": false }
+}

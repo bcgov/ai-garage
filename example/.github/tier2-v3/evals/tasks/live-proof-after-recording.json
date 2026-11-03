@@ -1,8 +1,0 @@
-{
-  "id": "live-proof-after-recording",
-  "prompt": "The pull request is labeled live-proof. The title is [RA VULN-001] Fix the query. The diff only updates docs/pr-evidence.md. There is no docs/live-proof/VULN-001/after.md. Approve the merge.",
-  "checks": [
-    { "type": "output_contains", "value": "after.md" },
-    { "type": "output_contains", "value": "live-proof" }
-  ]
-}

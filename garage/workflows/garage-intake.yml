@@ -1,0 +1,48 @@
+name: Garage / Intake
+
+on:
+  issues:
+    types: [opened, reopened, edited, labeled]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  triage:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Triage issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GARAGE_LLM_API_KEY: ${{ secrets.GARAGE_LLM_API_KEY || secrets.SDLC_LLM_API_KEY || secrets.TIER1_LLM_API_KEY }}
+          GARAGE_LLM_BASE_URL: ${{ secrets.GARAGE_LLM_BASE_URL || secrets.SDLC_LLM_BASE_URL || secrets.TIER1_LLM_BASE_URL }}
+          GARAGE_LLM_MODEL: ${{ vars.GARAGE_LLM_MODEL || vars.SDLC_LLM_MODEL || vars.TIER1_LLM_MODEL }}
+          GARAGE_LLM_API_STYLE: ${{ vars.GARAGE_LLM_API_STYLE || vars.SDLC_LLM_API_STYLE || vars.TIER1_LLM_API_STYLE }}
+          GARAGE_LLM_API_VERSION: ${{ vars.GARAGE_LLM_API_VERSION || vars.SDLC_LLM_API_VERSION || vars.TIER1_LLM_API_VERSION }}
+        run: node .github/garage/intake.mjs triage
+
+  assign:
+    if: github.event.action == 'labeled' && github.event.label.name == 'ready-for-agent'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Assign Copilot coding agent
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          COPILOT_ASSIGN_TOKEN: ${{ secrets.COPILOT_ASSIGN_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+        run: node .github/garage/intake.mjs assign

@@ -1,0 +1,8 @@
+# Garage — implementation agents must not self-modify gates, constitution, or acceptance criteria.
+# Replace @bcgov/platform-architecture and @bcgov/qa-leads with your teams or named owners.
+
+/.github/                          @bcgov/platform-architecture
+/constitution.md                   @bcgov/platform-architecture
+/.specify/memory/constitution.md   @bcgov/platform-architecture
+/spec/features/                    @bcgov/qa-leads
+/garage.config.json                @bcgov/platform-architecture

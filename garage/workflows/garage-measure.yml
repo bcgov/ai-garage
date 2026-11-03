@@ -1,0 +1,45 @@
+name: Garage / Measure
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Configure git identity
+        run: |
+          git config user.name "garage-bot"
+          git config user.email "garage-bot@users.noreply.github.com"
+      - name: Measure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GARAGE_LLM_API_KEY: ${{ secrets.GARAGE_LLM_API_KEY || secrets.SDLC_LLM_API_KEY || secrets.TIER1_LLM_API_KEY }}
+          GARAGE_LLM_BASE_URL: ${{ secrets.GARAGE_LLM_BASE_URL || secrets.SDLC_LLM_BASE_URL || secrets.TIER1_LLM_BASE_URL }}
+          GARAGE_LLM_MODEL: ${{ vars.GARAGE_LLM_MODEL || vars.SDLC_LLM_MODEL || vars.TIER1_LLM_MODEL }}
+          GARAGE_LLM_API_STYLE: ${{ vars.GARAGE_LLM_API_STYLE || vars.SDLC_LLM_API_STYLE || vars.TIER1_LLM_API_STYLE }}
+          GARAGE_LLM_API_VERSION: ${{ vars.GARAGE_LLM_API_VERSION || vars.SDLC_LLM_API_VERSION || vars.TIER1_LLM_API_VERSION }}
+        run: node .github/garage/measure.mjs --root "$GITHUB_WORKSPACE"
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: garage-metrics
+          path: |
+            docs/garage-metrics.json
+            spec/criteria-index.json
+          if-no-files-found: ignore

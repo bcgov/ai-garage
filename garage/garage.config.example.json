@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "project": "my-service",
+  "profile": "delivery",
+  "paths": {
+    "impl": ["src/", "apps/", "services/", "packages/", "server/", "deploy/", ".github/workflows/"],
+    "tests": ["tests/acceptance/", "tests/e2e/", "e2e/"],
+    "docs": ["docs/", "README.md"],
+    "evidence": "docs/pr-evidence.md"
+  },
+  "llm": {
+    "mode": "auto",
+    "api_style": "azure-apim",
+    "base_url": "https://ai-services-hub-test-apim.azure-api.net/sdpr-invoice-automation/openai/deployments/gpt-5.1-chat",
+    "api_version": "2025-04-01-preview",
+    "model": "gpt-5.1-chat",
+    "api_key_env": "GARAGE_LLM_API_KEY",
+    "temperature": 0.2
+  },
+  "intake": {
+    "triage": { "enabled": true, "min_body_length": 80, "default_label": "needs-triage", "needs_detail_label": "needs-detail" },
+    "coding_agent": { "auto_assign": true, "label": "ready-for-agent", "base_branch": "main", "custom_instructions": "" }
+  },
+  "gate": {
+    "enabled": true,
+    "require_constitution": true,
+    "require_spec": true,
+    "require_features": true,
+    "require_plan_on_impl": true,
+    "strict_placeholders": false,
+    "evidence_requires_impl": true,
+    "review": { "enabled": true, "require_evidence": true, "require_receipt": true, "redaction_deny_patterns": [] },
+    "risk_triage": { "enabled": false, "max_files": 3, "max_reference_count": 2, "require_additive": true, "allowed_prefixes": ["src/", "apps/"] }
+  },
+  "live_proof": {
+    "enabled": false,
+    "label": "live-proof",
+    "unavailable_label": "live-proof-unavailable",
+    "evidence_dir": "docs/live-proof",
+    "before_verdict": "confirmed",
+    "after_verdict": "closed"
+  },
+  "measure": {
+    "enabled": true,
+    "metrics": { "enabled": true, "artifact_path": "docs/garage-metrics.json", "stall_days": 14, "gate_taxonomy_exclude": ["activation", "agent"] },
+    "docs_drift": { "enabled": true, "open_pull_request": true, "report_path": "docs/garage-docs-drift-report.md" },
+    "review_issue": { "enabled": true, "label": "garage:review" }
+  },
+  "ci_diagnose": {
+    "enabled": true,
+    "watch_workflows": ["CI", "Tests", "Build", "test"],
+    "known_residuals": [],
+    "max_log_chars": 12000
+  }
+}

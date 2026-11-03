@@ -1,0 +1,39 @@
+name: Garage / Gate
+
+# One PR check: constitution / spec / plan / features / evidence / provenance / review.
+# Path relevance is decided by garage.config.json (paths.impl) inside gate.mjs — no paths: filter here,
+# so the config is the single source of truth.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Garage gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GARAGE_LLM_API_KEY: ${{ secrets.GARAGE_LLM_API_KEY || secrets.SDLC_LLM_API_KEY || secrets.TIER1_LLM_API_KEY }}
+          GARAGE_LLM_BASE_URL: ${{ secrets.GARAGE_LLM_BASE_URL || secrets.SDLC_LLM_BASE_URL || secrets.TIER1_LLM_BASE_URL }}
+          GARAGE_LLM_MODEL: ${{ vars.GARAGE_LLM_MODEL || vars.SDLC_LLM_MODEL || vars.TIER1_LLM_MODEL }}
+          GARAGE_LLM_API_STYLE: ${{ vars.GARAGE_LLM_API_STYLE || vars.SDLC_LLM_API_STYLE || vars.TIER1_LLM_API_STYLE }}
+          GARAGE_LLM_API_VERSION: ${{ vars.GARAGE_LLM_API_VERSION || vars.SDLC_LLM_API_VERSION || vars.TIER1_LLM_API_VERSION }}
+        run: node .github/garage/gate.mjs --root "$GITHUB_WORKSPACE"
