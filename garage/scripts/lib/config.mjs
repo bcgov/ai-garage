@@ -80,6 +80,7 @@ export const DEFAULTS = {
     before_verdict: "confirmed",
     after_verdict: "closed",
   },
+  sightline: { enabled: false },
   measure: {
     enabled: true,
     metrics: {

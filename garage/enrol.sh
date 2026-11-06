@@ -63,6 +63,7 @@ if [[ "$PROFILE" == "intake" ]]; then
 fi
 cp -f "$PACK_DIR/labels.yml" "$TARGET/.github/garage/labels.yml"
 cp -f "$PACK_DIR/OPERATE.md" "$TARGET/.github/garage/OPERATE.md"
+cp -f "$PACK_DIR/SIGHTLINE.md" "$TARGET/.github/garage/SIGHTLINE.md"
 chmod +x "$TARGET/.github/garage/"*.mjs "$TARGET/.github/garage/hooks/implement-guard.sh" 2>/dev/null || true
 
 # 4. AGENTS.md (create or append once)

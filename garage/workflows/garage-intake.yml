@@ -2,7 +2,7 @@ name: Garage / Intake
 
 on:
   issues:
-    types: [opened, reopened, edited, labeled]
+    types: [opened, reopened, edited, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -10,8 +10,29 @@ permissions:
   pull-requests: write
 
 jobs:
+  sightline-pending:
+    # This creates only a pending intake record; it never starts an active test.
+    runs-on: ${{ vars.GARAGE_SIGHTLINE_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check for an opt-in Sightline request
+        run: node .github/garage/sightline.mjs prepare --root "$GITHUB_WORKSPACE" --event "$GITHUB_EVENT_PATH" --output "$RUNNER_TEMP/garage-sightline-pending.json"
+      - name: Send pending intake to the local service
+        if: ${{ vars.GARAGE_SIGHTLINE_PORT != '' }}
+        env:
+          GARAGE_SIGHTLINE_PORT: ${{ vars.GARAGE_SIGHTLINE_PORT }}
+          GARAGE_SIGHTLINE_TOKEN: ${{ secrets.GARAGE_SIGHTLINE_TOKEN }}
+        run: node .github/garage/sightline-client.mjs pending --event "$GITHUB_EVENT_PATH"
+
   triage:
-    if: github.event.action != 'labeled'
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

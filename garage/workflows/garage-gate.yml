@@ -6,7 +6,7 @@ name: Garage / Gate
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, edited, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -31,6 +31,7 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GARAGE_LLM_API_KEY: ${{ secrets.GARAGE_LLM_API_KEY || secrets.SDLC_LLM_API_KEY || secrets.TIER1_LLM_API_KEY }}
           GARAGE_LLM_BASE_URL: ${{ secrets.GARAGE_LLM_BASE_URL || secrets.SDLC_LLM_BASE_URL || secrets.TIER1_LLM_BASE_URL }}
           GARAGE_LLM_MODEL: ${{ vars.GARAGE_LLM_MODEL || vars.SDLC_LLM_MODEL || vars.TIER1_LLM_MODEL }}

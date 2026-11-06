@@ -15,7 +15,7 @@ Humans own three checkpoints (spec, plan, ship). Agents propose.
 
 ```
 garage/
-  ENROL.md  OPERATE.md  AGENTIC.md  LOCAL.md  YOU-PROVIDE.md
+  ENROL.md  OPERATE.md  AGENTIC.md  LOCAL.md  SIGHTLINE.md  YOU-PROVIDE.md
   enrol.sh
   garage.config.example.json
   scripts/          # copied to the service as .github/garage/
@@ -36,7 +36,7 @@ Then [ENROL.md](ENROL.md), and day to day [OPERATE.md](OPERATE.md). Copilot and 
 
 A repo that still has `tier1.config.json` or `tier2-v3.config.json` is migrated on enrol. Older secret names `SDLC_LLM_*` and `TIER1_LLM_*` still work.
 
-Live proof stays off until `live_proof.enabled` is true. The pack does not start the application or run the check. It reads two recordings that a recipe outside this pack commits. See [OPERATE.md](OPERATE.md#live-proof-optional-off-until-you-turn-it-on).
+Live proof stays off until `live_proof.enabled` is true. The existing gate reads two recordings that a recipe outside the pack commits. The separately enabled [Sightline pilot](SIGHTLINE.md) can coordinate a local synthetic verification container; it requires separate approval and human review.
 
 ## Tests
 

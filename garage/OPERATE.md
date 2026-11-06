@@ -3,6 +3,8 @@
 Human playbook for **day-to-day use** of the garage pack after enrol.  
 For first-time setup see [ENROL.md](ENROL.md). Backends & coding agent: [AGENTIC.md](AGENTIC.md). Local IDE agents: [LOCAL.md](LOCAL.md).
 
+For the optional synthetic Sightline proof pilot, see [SIGHTLINE.md](SIGHTLINE.md).
+
 **What the garage is:** spec-driven delivery — constitution + Spec Kit in git, human checkpoints, PR gates, optional Copilot assign, optional MCP for local agents, plus intake (triage / docs drift / CI diagnose).  
 **Profiles:** `delivery` is the full path. `intake` is triage / docs drift / CI diagnose only (no gate).
 

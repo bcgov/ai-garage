@@ -20,6 +20,7 @@ import { runProvenance } from "./gate/provenance.mjs";
 import { runReview, redactionHits } from "./gate/review.mjs";
 import { evaluateLiveProof, liveProofForcesPipeline, parseLabelList } from "./gate/live-proof.mjs";
 import { triageChange } from "./gate/risk-triage.mjs";
+import { evaluateSightlineFreshness } from "./sightline/freshness.mjs";
 
 const MARKER = "<!-- garage-gate -->";
 
@@ -116,6 +117,21 @@ for (const item of evaluateLiveProof({
   else live.ok(item.id, item.message);
 }
 all.merge(live);
+
+const freshness = new Results();
+for (const item of evaluateSightlineFreshness({
+  cfg, root, labels: prLabels, title: prTitle, body: prBody, touchesImpl,
+  baseSha: process.env.BASE_SHA || arg("base-ref", ""),
+  headSha: process.env.PR_HEAD_SHA || arg("head-ref", ""),
+  readFile(rel) {
+    const file = path.join(root, rel);
+    return existsSync(file) ? readFileSync(file, "utf8") : "";
+  },
+})) {
+  if (item.status === "fail") freshness.fail(item.id, item.message);
+  else freshness.ok(item.id, item.message);
+}
+all.merge(freshness);
 
 const whereToLook = touchesImpl
   ? "This pull request changes application code. Read the description's How to review this section, then open the files it names and compare them to the spec."
