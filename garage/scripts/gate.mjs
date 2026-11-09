@@ -17,7 +17,7 @@ import { resolveAgentMode } from "./lib/agent-mode.mjs";
 import { runCheckpoints } from "./gate/checkpoints.mjs";
 import { runStructural } from "./gate/structural.mjs";
 import { runProvenance } from "./gate/provenance.mjs";
-import { runReview, redactionHits } from "./gate/review.mjs";
+import { runReview, redactionHits, reviewWalkthrough } from "./gate/review.mjs";
 import { evaluateLiveProof, liveProofForcesPipeline, parseLabelList } from "./gate/live-proof.mjs";
 import { triageChange } from "./gate/risk-triage.mjs";
 import { evaluateSightlineFreshness } from "./sightline/freshness.mjs";
@@ -158,6 +158,12 @@ const sections = [
 ];
 if (triageReasons.length) {
   sections.push(`_Risk triage → **${triageMode}**: ${triageReasons.join("; ")}_\n`);
+}
+if (touchesImpl) {
+  const walkthrough = reviewWalkthrough(prBody);
+  sections.push(walkthrough
+    ? `## Change and verification walkthrough\n\n_The following is supplied by the PR author; the gate has not verified these claims._\n\n${walkthrough}\n`
+    : "## Change and verification walkthrough\n\nThe PR description does not yet provide a walkthrough. The author should describe the original behavior, the change, the checks and their actual outcomes, and what remains unverified.\n");
 }
 if (narrative) sections.push(`## Agent notes\n\n${narrative}\n`);
 sections.push(

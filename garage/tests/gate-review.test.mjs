@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, checkAsync, eq, done } from "./helper.mjs";
 import { loadConfig } from "../scripts/lib/config.mjs";
-import { runReview, redactionHits } from "../scripts/gate/review.mjs";
+import { runReview, redactionHits, reviewWalkthrough } from "../scripts/gate/review.mjs";
 import { runProvenance } from "../scripts/gate/provenance.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -57,6 +57,19 @@ check("redaction catches ghp_ token and email", () => {
   eq(redactionHits("token ghp_abcdefghijklmnopqrstuvwxyz1234", cfg).length, 1);
   eq(redactionHits("mail me a@b.ca", cfg).length, 1);
   eq(redactionHits("clean text", cfg).length, 0);
+});
+
+check("walkthrough extracts author text without template comments or later sections", () => {
+  const body = "## What changed\nFix\n\n## Change and verification walkthrough\n<!-- instructions -->\nBefore: markup rendered.\nAfter: literal text.\nTests: synthetic form; baseline observed, candidate not observed.\nLimits: no deployed test.\n\n## Review receipt\nprivate receipt";
+  const excerpt = reviewWalkthrough(body);
+  if (!excerpt.includes("baseline observed") || excerpt.includes("instructions") || excerpt.includes("private receipt")) throw new Error(excerpt);
+});
+
+check("empty and oversized walkthroughs are handled explicitly", () => {
+  eq(reviewWalkthrough("## Change and verification walkthrough\n<!-- fill this in -->\n## Review receipt\n"), "");
+  eq(reviewWalkthrough("no walkthrough"), "");
+  const text = reviewWalkthrough("## Change and verification walkthrough\n" + "x".repeat(6000));
+  if (!text.includes("truncated") || text.length >= 6000) throw new Error("walkthrough was not bounded");
 });
 
 check("provenance passes fixture with header", () => {
