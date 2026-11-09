@@ -78,6 +78,30 @@ test values, and its recorded revision is not deployment attestation.
 The Sightline checkout's `verification/README.md` explains the container,
 request, result, and narrower standalone demo.
 
+### Browser checks
+
+The local coordinator also supports an explicitly selected `browser` profile.
+Build Sightline's `Dockerfile.verifier-browser` and supply that image with
+`--profile browser` to `sightline.mjs run`, or set `verifier_profile` to
+`browser` in the trusted local service configuration. The default remains
+`http`. Selection is an operator setting, never an issue-supplied command.
+The browser profile uses more memory, a larger temporary area and the bundled
+Playwright seccomp profile so that Chromium's own sandbox can run. The
+coordinator records a digest of that profile and rejects a duplicate job if
+its launch profile changes. The browser image and syscall profile require
+security review before deployment. The local Docker network and browser
+routing are not sufficient network isolation for a shared service.
+
+```sh
+bash garage/tests/sightline-browser-docker-e2e.sh /path/to/sightline-agent
+```
+
+This covers synthetic before/after checks and duplicate suppression through
+the Garage coordinator. Sightline also provides a repeatable historical
+restitution frontend example with stubbed local services. These tests do not
+authenticate approvals or reviewers, attest the running build, or publish
+proof; those remain separate responsibilities.
+
 ## Operator interface
 
 Set the following in an enrolled service's `garage.config.json` only for the

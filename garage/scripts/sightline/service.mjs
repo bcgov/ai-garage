@@ -65,6 +65,7 @@ function createWorker(args) {
 export function createService({ config, token, startWorker = createWorker }) {
   if (typeof token !== "string" || token.length < 32 || token.length > 256) throw new Error("a service token of 32 to 256 characters is required");
   if (config?.schema !== "garage.sightline.service/v1" || !Number.isInteger(config.max_concurrent) || config.max_concurrent < 1 || config.max_concurrent > 4) throw new Error("invalid service config");
+  if (!["http", "browser"].includes(config.verifier_profile || "http")) throw new Error("invalid verifier profile");
   const imageName = /^[A-Za-z0-9][A-Za-z0-9_./:@-]{0,255}$/;
   const networkName = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/;
   if (!imageName.test(config.verifier_image || "") || !networkName.test(config.target_network || "") ||
@@ -100,7 +101,8 @@ export function createService({ config, token, startWorker = createWorker }) {
     if (active.size !== 0) return;
     try { if (readFileSync(lockPath, "utf8") === lockId) unlinkSync(lockPath); } catch { /* retain uncertain locks for operator review */ }
   }
-  const providerConfig = digest(JSON.stringify([config.verifier_image, config.target_network, config.copilot_image || "", config.copilot_network || "", config.synthetic_provider === true, config.synthetic_provider === true ? "synthetic-stub" : process.env.COPILOT_MODEL || ""]));
+  const launchProfile = config.verifier_profile === "browser" ? digest(readFileSync(new URL("./browser-seccomp.json", import.meta.url))) : "http-v1";
+  const providerConfig = digest(JSON.stringify([config.verifier_image, config.target_network, launchProfile, config.copilot_image || "", config.copilot_network || "", config.synthetic_provider === true, config.synthetic_provider === true ? "synthetic-stub" : process.env.COPILOT_MODEL || ""]));
 
   function current(jobId) {
     const queueFile = path.join(queueDir, jobId, "state.json");
@@ -167,6 +169,7 @@ export function createService({ config, token, startWorker = createWorker }) {
         const args = ["run", "--pending", path.join(directory, "pending.json"), "--request", path.join(directory, "request.json"),
           "--approval", path.join(directory, "approval.json"), "--target", path.join(directory, "target.json"), "--recipe", path.join(directory, "recipe.json"),
           "--output-dir", outputRoot, "--image", config.verifier_image, "--network", config.target_network];
+        if (config.verifier_profile) args.push("--profile", config.verifier_profile);
         if (config.copilot_image && config.copilot_network) args.push("--copilot-image", config.copilot_image, "--copilot-network", config.copilot_network);
         if (config.synthetic_provider === true) args.push("--synthetic-provider");
         active.add(id);

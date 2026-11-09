@@ -20,6 +20,7 @@ test -f "$T/d/.github/garage/sightline.mjs" || { echo "FAIL: Sightline coordinat
 test -f "$T/d/.github/garage/sightline-service.mjs" || { echo "FAIL: Sightline service missing"; exit 1; }
 test -f "$T/d/.github/garage/sightline-client.mjs" || { echo "FAIL: Sightline client missing"; exit 1; }
 test -f "$T/d/.github/garage/sightline/freshness.mjs" || { echo "FAIL: Sightline freshness check missing"; exit 1; }
+test -f "$T/d/.github/garage/sightline/browser-seccomp.json" || { echo "FAIL: browser launch profile missing"; exit 1; }
 test -f "$T/d/.github/workflows/garage-sightline-run.yml" || { echo "FAIL: Sightline workflow missing"; exit 1; }
 node "$T/d/.github/garage/preflight.mjs" --root "$T/d" >/dev/null || { echo "FAIL: preflight"; exit 1; }
 node "$T/d/.github/garage/gate.mjs" --root "$T/d" --changed-paths src/x.ts --no-comment >/dev/null || { echo "FAIL: gate on scaffold"; exit 1; }

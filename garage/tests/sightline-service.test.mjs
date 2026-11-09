@@ -15,7 +15,7 @@ if (typeof process.getuid !== "function") {
   for (const name of ["requests", "approvals", "targets", "recipes"]) mkdirSync(path.join(dirs.records, name), { mode: 0o700 });
   writeFileSync(path.join(dirs.service, "garage.config.json"), JSON.stringify({ version: 1, profile: "delivery", sightline: { enabled: true }, live_proof: { enabled: true } }));
   const config = { schema: "garage.sightline.service/v1", service_root: dirs.service, records_dir: dirs.records,
-    output_dir: dirs.output, state_dir: dirs.state, verifier_image: "verifier:test", target_network: "isolated-lab", max_concurrent: 1 };
+    output_dir: dirs.output, state_dir: dirs.state, verifier_image: "verifier:test", target_network: "isolated-lab", verifier_profile: "browser", max_concurrent: 1 };
   let starts = 0;
   let worker;
   let workerArgs;
@@ -49,6 +49,7 @@ if (typeof process.getuid !== "function") {
     assert.equal(queued.state, "queued");
     assert.equal(starts, 1);
     assert.ok(workerArgs.includes("--approval"));
+    assert.equal(workerArgs[workerArgs.indexOf("--profile") + 1], "browser");
     assert.ok(!workerArgs.some((arg) => String(arg).includes("SECRET-DO-NOT-ECHO")));
     assert.equal((await request(`/v1/runs/${queued.job_id}`))[1].state, "queued");
     const duplicate = await request("/v1/runs", submission);

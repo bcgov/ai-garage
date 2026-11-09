@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { effectiveLabels, extractFindingIds, liveProofConfig } from "../gate/live-proof.mjs";
 
 const PENDING = "garage.sightline.pending/v1";
@@ -163,7 +164,8 @@ export function validateResult(pending, request, approval, result) {
 }
 
 /** Run exactly once for a given approved issue/phase/revision/recipe tuple. */
-export function runJob({ pending, requestFile, approvalFile, targetFile, recipeFile, outputDir, image, network, copilotImage, copilotNetwork, syntheticProvider = false }) {
+export function runJob({ pending, requestFile, approvalFile, targetFile, recipeFile, outputDir, image, network, copilotImage, copilotNetwork, syntheticProvider = false, profile = "http" }) {
+  if (!["http", "browser"].includes(profile)) throw new Error("unsupported verifier profile");
   if (typeof process.getuid !== "function" || process.getuid() === 0 || process.getgid() === 0) throw new Error("a non-root POSIX coordinator is required");
   if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/.test(network || "") ||
       !/^[A-Za-z0-9][A-Za-z0-9_./:@-]{0,255}$/.test(image || "")) throw new Error("invalid trusted image or network");
@@ -178,6 +180,8 @@ export function runJob({ pending, requestFile, approvalFile, targetFile, recipeF
   if (inspected.status !== 0 || inspected.stdout.trim() !== "true") throw new Error("an existing internal Docker network is required");
   const targetId = localNetworkId(network);
   const verifierImageId = localImageId(image);
+  const seccomp = fileURLToPath(new URL("./browser-seccomp.json", import.meta.url));
+  const launchProfile = profile === "browser" ? hash(readFileSync(seccomp)) : "http-v1";
   let providerNetworkId = null;
   let copilotImageId = null;
   if (copilotImage) {
@@ -203,7 +207,7 @@ export function runJob({ pending, requestFile, approvalFile, targetFile, recipeF
     }
     const stateFile = path.join(jobDirectory, "state.json");
     const existing = existsSync(stateFile) ? readJson(stateFile) : { job_id: jobId, state: "interrupted" };
-    if (existing.verifier_image_id !== verifierImageId || (existing.provider || "none") !== (copilotImage ? "copilot-cli" : "none") || (existing.provider_config_sha256 || null) !== providerConfig) throw new Error("duplicate request has different provider settings");
+    if (existing.verifier_image_id !== verifierImageId || (existing.launch_profile || "http-v1") !== launchProfile || (existing.provider || "none") !== (copilotImage ? "copilot-cli" : "none") || (existing.provider_config_sha256 || null) !== providerConfig) throw new Error("duplicate request has different provider or launch settings");
     return { ...existing, duplicate: true };
   }
   const runs = path.join(jobDirectory, "runs");
@@ -212,14 +216,17 @@ export function runJob({ pending, requestFile, approvalFile, targetFile, recipeF
   mkdirSync(input, { mode: 0o700 });
   for (const [name, bytes] of Object.entries(sources)) privateWrite(path.join(input, `${name}.json`), bytes);
   const state = { schema: "garage.sightline.job/v1", job_id: jobId, state: "running", phase: request.phase, provider: copilotImage ? "copilot-cli" : "none", verifier_image_id: verifierImageId };
+  state.launch_profile = launchProfile;
   if (providerConfig) state.provider_config_sha256 = providerConfig;
   if (copilotImageId) state.copilot_image_id = copilotImageId;
   updateState(jobDirectory, state);
   const containerName = `garage-sightline-${randomUUID()}`;
+  const browserArgs = profile === "browser" ? ["--security-opt", `seccomp=${seccomp}`, "--pids-limit", "256", "--memory", "1g", "--cpus", "2", "--shm-size", "256m", "--tmpfs", "/tmp:rw,nosuid,size=256m"] :
+    ["--pids-limit", "64", "--memory", "128m", "--cpus", "1", "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m"];
   const args = ["run", "--rm", "--name", containerName, "--pull=never", "--network", targetId,
-    "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--pids-limit", "64",
-    "--memory", "128m", "--cpus", "1", "--user", `${process.getuid()}:${process.getgid()}`,
-    "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m", "--mount", `type=bind,src=${input},dst=/input,readonly`,
+    "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", ...browserArgs,
+    "--user", `${process.getuid()}:${process.getgid()}`,
+    "--mount", `type=bind,src=${input},dst=/input,readonly`,
     "--mount", `type=bind,src=${runs},dst=/output`, verifierImageId, "verify", "--request", "/input/request.json",
     "--approval", "/input/approval.json", "--target", "/input/target.json", "--recipe", "/input/recipe.json", "--output-dir", "/output"];
   let result;

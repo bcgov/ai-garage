@@ -35,11 +35,11 @@ try {
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Sightline intake: ${pending.state}. Issue labels are not approval.\n`);
   } else if (command === "run") {
     const names = ["pending", "request", "approval", "target", "recipe", "output-dir", "image", "network"];
-    const values = options(args, [...names, "copilot-image", "copilot-network", "synthetic-provider"], ["synthetic-provider"]);
+    const values = options(args, [...names, "copilot-image", "copilot-network", "synthetic-provider", "profile"], ["synthetic-provider"]);
     required(values, names);
     const state = runJob({ pending: readJson(values.pending), requestFile: values.request, approvalFile: values.approval,
       targetFile: values.target, recipeFile: values.recipe, outputDir: values["output-dir"], image: values.image, network: values.network,
-      copilotImage: values["copilot-image"], copilotNetwork: values["copilot-network"], syntheticProvider: values["synthetic-provider"] === true });
+      copilotImage: values["copilot-image"], copilotNetwork: values["copilot-network"], syntheticProvider: values["synthetic-provider"] === true, profile: values.profile });
     console.log(JSON.stringify(state));
     if (!["confirmed", "not_reproduced"].includes(state.state) || (state.provider === "copilot-cli" && state.advisory !== "completed")) process.exitCode = 2;
   } else if (command === "export") {
