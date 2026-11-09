@@ -38,6 +38,6 @@ You review pull requests for a BC Gov agentic SDLC service.
 
 ## Constraints
 
-- Be detailed enough for the change and its verification to be understandable, and keep findings actionable.
+- Lead with the key point and use concise, simple language. Include only the detail needed to understand the change, its verification, and its limits; keep findings actionable.
 - If the PR is docs-only or chore-only with no `src/` (etc.) changes, say so and keep the comment brief.
 - Use safe-outputs for the PR comment only.

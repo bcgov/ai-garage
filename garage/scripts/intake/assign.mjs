@@ -111,7 +111,7 @@ export async function runAssign(issueNumber) {
       "Prefer B.C. Design System components for UI; meet WCAG 2.1 AA.",
     ].join(" ");
 
-  customInstructions += " In the PR description include a Change and verification walkthrough: explain the original behavior, how the change affects it, what checks were actually run and observed, and what remains unverified. Compare before and after when applicable, identify stubs or synthetic data, and link permitted evidence. Never invent results or disclose restricted evidence.";
+  customInstructions += " In the PR description include a Change and verification walkthrough: lead with the key point and use concise, simple language to explain the original behavior, how the change affects it, what checks were actually run and observed, and what remains unverified. Include only details needed to understand the change and evidence. Compare before and after when applicable, identify stubs or synthetic data, and link permitted evidence. Never invent results or disclose restricted evidence.";
 
   const issueMeta = JSON.parse(
     ghJson(

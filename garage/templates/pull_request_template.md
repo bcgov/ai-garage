@@ -7,8 +7,9 @@
 
 ## Change and verification walkthrough
 
-<!-- Write for a reviewer who has not followed the work. Use plain English and
-     enough detail to understand the change; adjust the detail to its size.
+<!-- Write for a reviewer who has not followed the work. Lead with the key
+     behavior and use concise, simple language; give only the detail needed to
+     understand the change, the evidence, and its limits.
      Before: what behavior or problem could someone see, and under what conditions?
      Change: what now happens, and how does the change address that behavior?
      Verification: for each meaningful check, say what was actually run, against
