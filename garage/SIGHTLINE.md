@@ -57,6 +57,12 @@ authenticate an approval, reviewer or result, or prove the target actually
 ran the recorded build. A label, passing gate, SHA, or `--human-reviewed` flag
 is not a substitute for an independent reviewer and protected branch rules.
 
+For isolated rehearsals only, `sightline.allow_simulated_proof: true` permits
+records labeled `review-status: simulated` to be checked for structural
+freshness. They produce a warning, never a human-review pass. The default is
+false: simulated records fail freshness. Never enable this setting as a
+substitute for authenticated approval or review in a real delivery workflow.
+
 ## Run the complete local test
 
 From the AI Garage checkout, on a Linux/WSL host with Git, Node 22+, Python 3,

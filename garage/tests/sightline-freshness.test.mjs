@@ -35,6 +35,12 @@ try {
     baseSha, headSha, readFile: (file) => readFileSync(path.join(root, file), "utf8"),
   };
   assert.deepEqual(evaluateSightlineFreshness(args).map((item) => item.status), ["pass", "pass"]);
+  const simulate = (text) => text.replace(/reviewed-by: reviewer-1/, "review-status: simulated");
+  put("docs/live-proof/VULN-001/before.md", simulate(proof("baseline", baseline, "confirmed")));
+  put("docs/live-proof/VULN-001/after.md", simulate(proof("candidate", candidate, "closed")));
+  assert.deepEqual(evaluateSightlineFreshness(args).map((item) => item.status), ["fail", "fail"]);
+  assert.deepEqual(evaluateSightlineFreshness({ ...args, cfg: { sightline: { enabled: true, allow_simulated_proof: true }, live_proof: { enabled: true } } }).map((item) => item.status), ["warn", "warn"]);
+  put("docs/live-proof/VULN-001/before.md", proof("baseline", baseline, "confirmed"));
   put("docs/live-proof/VULN-001/after.md", proof("candidate", candidate, "closed", "b".repeat(64)));
   assert.ok(evaluateSightlineFreshness(args).some((item) => item.status === "fail"));
   put("docs/live-proof/VULN-001/after.md", proof("candidate", candidate, "closed"));

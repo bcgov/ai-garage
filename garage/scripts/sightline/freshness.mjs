@@ -11,14 +11,16 @@ function field(body, name) {
   return matches.length === 1 ? matches[0][1] : "";
 }
 
-function metadata(body, id, phase) {
+function metadata(body, id, phase, allowSimulated) {
   const revision = field(body, "tested-revision");
   const recipe = field(body, "recipe-ref");
   const digest = field(body, "recipe-sha256");
+  const simulated = field(body, "review-status") === "simulated";
+  if (simulated && !allowSimulated) return null;
   if (field(body, "finding-id") !== id || field(body, "phase") !== phase || !REVISION.test(revision) ||
-      !UUID.test(field(body, "run-id")) || !IDENTIFIER.test(field(body, "reviewed-by")) ||
+      !UUID.test(field(body, "run-id")) || (!simulated && !IDENTIFIER.test(field(body, "reviewed-by"))) ||
       !IDENTIFIER.test(recipe) || !/^[0-9a-f]{64}$/.test(digest)) return null;
-  return { revision, recipe, digest };
+  return { revision, recipe, digest, simulated };
 }
 
 function onlyProofSince(root, tested, current, allowedFile) {
@@ -48,13 +50,15 @@ export function evaluateSightlineFreshness({ cfg, root, labels, title, body, tou
     let baseline;
     for (const [phase, name, current] of [["baseline", "before.md", baseSha], ...(touchesImpl ? [["candidate", "after.md", headSha]] : [])]) {
       const file = `${lp.evidence_dir}/${id}/${name}`;
-      const tested = metadata(readFile(file), id, phase);
+      const tested = metadata(readFile(file), id, phase, cfg?.sightline?.allow_simulated_proof === true);
       const sameRecipe = phase === "baseline" || (baseline && tested && baseline.recipe === tested.recipe && baseline.digest === tested.digest);
       if (phase === "baseline") baseline = tested;
       if (!tested || !sameRecipe || !onlyProofSince(root, tested.revision, current, file)) {
         results.push({ status: "fail", id: "sightline_freshness", message: `${id}: ${phase} proof metadata is missing or stale for the current commit.` });
       } else {
-        results.push({ status: "pass", id: "sightline_freshness", message: `${id}: ${phase} proof points to an ancestor with only its proof file changed since testing; human review remains required.` });
+        results.push(tested.simulated
+          ? { status: "warn", id: "sightline_freshness", message: `${id}: ${phase} proof is structurally fresh but its review is simulated; it is not human-reviewed evidence.` }
+          : { status: "pass", id: "sightline_freshness", message: `${id}: ${phase} proof points to an ancestor with only its proof file changed since testing; human review remains required.` });
       }
     }
   }

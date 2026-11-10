@@ -129,6 +129,7 @@ for (const item of evaluateSightlineFreshness({
   },
 })) {
   if (item.status === "fail") freshness.fail(item.id, item.message);
+  else if (item.status === "warn") freshness.warn(item.id, item.message);
   else freshness.ok(item.id, item.message);
 }
 all.merge(freshness);
