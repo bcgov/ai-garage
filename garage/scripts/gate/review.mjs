@@ -74,7 +74,7 @@ export async function runReview(ctx) {
   }
   if (review.require_receipt !== false) {
     const hasSection = /##\s*review receipt/i.test(body);
-    const hasChecked = /\*\*checked\*\*|^checked:/im.test(body);
+    const hasChecked = /\*\*checked:?\*\*|^checked:/im.test(body);
     const hasCouldNot = /\*\*could not check\*\*|could not check|couldn't check/i.test(body);
     if (!hasSection || !hasChecked || !hasCouldNot) {
       results.warn(

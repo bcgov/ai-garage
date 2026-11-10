@@ -40,6 +40,12 @@ await checkAsync("impl PR with trace + receipt passes", async () => {
   eq(results.failed().length + results.warned().length, 0, JSON.stringify(results.items));
 });
 
+await checkAsync("recognizes the PR template's bold checked field", async () => {
+  const cfg = loadConfig(okRoot);
+  const { results } = await runReview({root: okRoot, cfg, files: ["src/a.ts"], prTitle: "fix", prBody: "spec/features/example-happy-path.feature\n## Review receipt\n**Checked:** Pending\n**Could not check:** Production"});
+  if (ids(results).no_review_receipt) throw new Error("template receipt was not recognized");
+});
+
 await checkAsync("docs-only PR produces no findings", async () => {
   const cfg = loadConfig(okRoot);
   const { results } = await runReview({
