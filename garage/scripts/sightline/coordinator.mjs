@@ -275,3 +275,10 @@ export function reviewedEvidence({ pending, result, reviewer, revision }) {
   if (!before && !after) throw new Error("result cannot support a proof verdict");
   return `verdict: ${before ? "confirmed" : "closed"}\nfinding-id: ${pending.finding_id}\nphase: ${result.phase}\ntested-revision: ${revision}\nrecipe-ref: ${result.recipe_ref}\nrecipe-sha256: ${result.recipe_sha256}\nrun-id: ${result.run_id}\nreviewed-by: ${reviewer}\n\nA reviewer must confirm the protected result, authorization, target identity, and disclosure policy.\n`;
 }
+
+/** Create a simulation-only draft with no claim that a human reviewed it. */
+export function simulatedEvidence({ pending, result, revision }) {
+  const draft = reviewedEvidence({ pending, result, reviewer: "simulation-placeholder", revision });
+  return draft.replace("reviewed-by: simulation-placeholder", "review-status: simulated") +
+    "\nSIMULATION ONLY: no human review or actual approval is asserted. Do not use for real delivery.\n";
+}

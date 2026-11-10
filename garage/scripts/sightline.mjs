@@ -2,7 +2,7 @@
 /** Operator-driven local bridge. It never posts issues or publishes evidence. */
 import { appendFileSync, writeFileSync } from "node:fs";
 import { loadConfig } from "./lib/config.mjs";
-import { pendingFromIssue, readJson, reviewedEvidence, runJob } from "./sightline/coordinator.mjs";
+import { pendingFromIssue, readJson, reviewedEvidence, simulatedEvidence, runJob } from "./sightline/coordinator.mjs";
 
 function options(args, allowed, flags = []) {
   const values = {};
@@ -42,6 +42,13 @@ try {
       copilotImage: values["copilot-image"], copilotNetwork: values["copilot-network"], syntheticProvider: values["synthetic-provider"] === true, profile: values.profile });
     console.log(JSON.stringify(state));
     if (!["confirmed", "not_reproduced"].includes(state.state) || (state.provider === "copilot-cli" && state.advisory !== "completed")) process.exitCode = 2;
+  } else if (command === "export-simulation") {
+    const names = ["pending", "result", "revision", "output", "simulation-only"];
+    const values = options(args, names, ["simulation-only"]);
+    required(values, names);
+    const evidence = simulatedEvidence({ pending: readJson(values.pending), result: readJson(values.result), revision: values.revision });
+    writeFileSync(values.output, evidence, { mode: 0o600, flag: "wx" });
+    console.log("Simulation-only proof draft saved; no human review or approval is asserted.");
   } else if (command === "export") {
     const names = ["pending", "result", "reviewer", "revision", "output", "human-reviewed"];
     const values = options(args, names, ["human-reviewed"]);

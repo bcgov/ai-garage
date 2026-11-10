@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { pendingFromIssue, reviewedEvidence, validateResult } from "../scripts/sightline/coordinator.mjs";
+import { pendingFromIssue, reviewedEvidence, simulatedEvidence, validateResult } from "../scripts/sightline/coordinator.mjs";
 
 const config = { sightline: { enabled: true }, live_proof: { enabled: true } };
 const event = {
@@ -30,6 +30,10 @@ const baseline = {
 };
 const proof = (result, revision = subject.revision) => reviewedEvidence({ pending, result, reviewer: "reviewer-1", revision });
 assert.match(proof(baseline), /^verdict: confirmed\n/);
+const simulation = simulatedEvidence({ pending, result: baseline, revision: subject.revision });
+assert.match(simulation, /review-status: simulated/);
+assert.doesNotMatch(simulation, /reviewed-by:/);
+assert.throws(() => simulatedEvidence({ pending, result: { ...baseline, status: "inconclusive" }, revision: subject.revision }));
 const candidate = { ...baseline, phase: "candidate", implementer_ref: "implementer-1", status: "not_reproduced", checks: [{ kind: "control", outcome: "passed" }, { kind: "probe", outcome: "not_observed" }] };
 assert.match(proof(candidate), /^verdict: closed\n/);
 assert.throws(() => proof(candidate, "b".repeat(40))); // Wrong tested revision is stale.
