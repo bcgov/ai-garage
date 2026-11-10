@@ -62,6 +62,8 @@ records labeled `review-status: simulated` to be checked for structural
 freshness. They produce a warning, never a human-review pass. The default is
 false: simulated records fail freshness. Never enable this setting as a
 substitute for authenticated approval or review in a real delivery workflow.
+An operator can create a simulated draft with `sightline.mjs export-simulation`
+and the required `--simulation-only` flag; this does not assert a human reviewer.
 
 ## Run the complete local test
 
