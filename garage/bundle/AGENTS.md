@@ -17,6 +17,7 @@ Implement only what is specified under `spec/`, consistent with `.specify/memory
 1. Map work to a `spec/features/*.feature` scenario or an explicit tasks.md item.
 2. Attach or update `docs/pr-evidence.md` (see PR evidence pack).
 3. Write the pull request description in plain technical language. Say what changed, then how to review it: which spec to read, which files to open, what to run, and what a correct result looks like. Leave the review receipt for the human reviewer.
+   Under **Change and verification walkthrough**, use concise, simple language to explain the behavior before the change, how the change affects it, the actual checks and outcomes (including before/after when applicable), and what remains unverified. Lead with the key point and include only details needed to understand the change and evidence. Link permitted evidence; identify synthetic data or stubs. Never invent a test result or disclose restricted evidence.
 4. Do not merge your own PR. Do not weaken the gate.
 
 ## Repo conventions

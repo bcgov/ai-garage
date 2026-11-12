@@ -40,6 +40,7 @@
     "before_verdict": "confirmed",
     "after_verdict": "closed"
   },
+  "sightline": { "enabled": false },
   "measure": {
     "enabled": true,
     "metrics": { "enabled": true, "artifact_path": "docs/garage-metrics.json", "stall_days": 14, "gate_taxonomy_exclude": ["activation", "agent"] },

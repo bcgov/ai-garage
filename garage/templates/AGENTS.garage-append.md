@@ -26,6 +26,8 @@ Fill the **Review receipt** (Checked / Could not check / Residual risk). Impleme
 
 Write the pull request description in plain technical language. Under **What changed**, say what is different and why. Under **How to review this**, give ordered steps: which spec to read, which files to open, what to run, and what a correct result looks like. Leave the receipt for the human reviewer.
 
+Under **Change and verification walkthrough**, use concise, simple language to explain the original behavior, how the change affects it, what checks were actually performed and their outcomes, and their limits. Lead with the key point and include only the detail needed to understand the change and evidence. Compare before and after when relevant; identify synthetic data and stubs, link permitted evidence, and state what was not checked. Do not invent results or expose restricted evidence.
+
 ### Labels
 
 - `ready-for-agent` — **Garage / Intake** assigns the Copilot coding agent (needs `COPILOT_ASSIGN_TOKEN`).

@@ -6,6 +6,8 @@ Write in plain technical language. Say which files you opened, what you compared
 
 The pull request description should already contain **How to review this**. Follow those steps, then write down where they were wrong or incomplete.
 
+Use the **Change and verification walkthrough** to understand the original behavior, what changed, and the checks and their actual outcomes. Explain the key point first in concise, simple language, including only the detail needed to understand the change and its evidence. For before/after proof, compare the same scenario, inputs, environments, and observations on both versions. Identify stubs, synthetic data, evidence sources, and what the checks do not establish. Explain gaps plainly; an author-provided account is not independent verification. Never claim to have run a check or inspected evidence you could not access.
+
 ## Passes
 Run three passes; tag each finding:
 - **Bugs** — logic errors, broken edge cases, subtle regressions

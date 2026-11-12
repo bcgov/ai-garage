@@ -3,6 +3,8 @@
 Human playbook for **day-to-day use** of the garage pack after enrol.  
 For first-time setup see [ENROL.md](ENROL.md). Backends & coding agent: [AGENTIC.md](AGENTIC.md). Local IDE agents: [LOCAL.md](LOCAL.md).
 
+For the optional synthetic Sightline proof pilot, see [SIGHTLINE.md](SIGHTLINE.md).
+
 **What the garage is:** spec-driven delivery — constitution + Spec Kit in git, human checkpoints, PR gates, optional Copilot assign, optional MCP for local agents, plus intake (triage / docs drift / CI diagnose).  
 **Profiles:** `delivery` is the full path. `intake` is triage / docs drift / CI diagnose only (no gate).
 
@@ -276,6 +278,7 @@ Don’t let Actions LLM **and** gh-aw both comment on every PR. Set `llm.mode` t
 4. **Label hygiene** — only `ready-for-agent` when the slice is ready for a cloud agent (acceptance clear, checkpoints 1–2 done).
 5. **Read gate failures** — missing feature file or plan usually means the PR is ahead of the paper trail; fix artifacts, don’t bypass.
 6. **Evidence** — append to `docs/pr-evidence.md` (`evidence.mjs --append`); fill **Review receipt** (Checked / Could not check / Residual risk).
+   The author also fills **Change and verification walkthrough** in the PR description: lead with the key point and use concise, simple language to explain the original behavior, what changed, what was actually checked and observed, and the limits. Include only the detail needed to understand the change and evidence. For live proof, compare the same before/after scenario and identify stubs and synthetic data. Link only evidence permitted by the disclosure policy. The gate repeats this account in its PR comment as author-provided context, not independently verified proof; if it is missing, the comment asks for it. The human still completes the review receipt.
 7. **Close finding issues** on merge; close or action the weekly `garage:review` issue after triage.
 8. **After a backlog wave** — run independent verification vs the source assessment before claiming drained.
 

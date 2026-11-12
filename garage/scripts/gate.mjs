@@ -17,9 +17,10 @@ import { resolveAgentMode } from "./lib/agent-mode.mjs";
 import { runCheckpoints } from "./gate/checkpoints.mjs";
 import { runStructural } from "./gate/structural.mjs";
 import { runProvenance } from "./gate/provenance.mjs";
-import { runReview, redactionHits } from "./gate/review.mjs";
+import { runReview, redactionHits, reviewWalkthrough } from "./gate/review.mjs";
 import { evaluateLiveProof, liveProofForcesPipeline, parseLabelList } from "./gate/live-proof.mjs";
 import { triageChange } from "./gate/risk-triage.mjs";
+import { evaluateSightlineFreshness } from "./sightline/freshness.mjs";
 
 const MARKER = "<!-- garage-gate -->";
 
@@ -117,6 +118,22 @@ for (const item of evaluateLiveProof({
 }
 all.merge(live);
 
+const freshness = new Results();
+for (const item of evaluateSightlineFreshness({
+  cfg, root, labels: prLabels, title: prTitle, body: prBody, touchesImpl,
+  baseSha: process.env.BASE_SHA || arg("base-ref", ""),
+  headSha: process.env.PR_HEAD_SHA || arg("head-ref", ""),
+  readFile(rel) {
+    const file = path.join(root, rel);
+    return existsSync(file) ? readFileSync(file, "utf8") : "";
+  },
+})) {
+  if (item.status === "fail") freshness.fail(item.id, item.message);
+  else if (item.status === "warn") freshness.warn(item.id, item.message);
+  else freshness.ok(item.id, item.message);
+}
+all.merge(freshness);
+
 const whereToLook = touchesImpl
   ? "This pull request changes application code. Read the description's How to review this section, then open the files it names and compare them to the spec."
   : touchesSpec
@@ -142,6 +159,12 @@ const sections = [
 ];
 if (triageReasons.length) {
   sections.push(`_Risk triage → **${triageMode}**: ${triageReasons.join("; ")}_\n`);
+}
+if (touchesImpl) {
+  const walkthrough = reviewWalkthrough(prBody);
+  sections.push(walkthrough
+    ? `## Change and verification walkthrough\n\n_The following is supplied by the PR author; the gate has not verified these claims._\n\n${walkthrough}\n`
+    : "## Change and verification walkthrough\n\nThe PR description does not yet provide a walkthrough. The author should describe the original behavior, the change, the checks and their actual outcomes, and what remains unverified.\n");
 }
 if (narrative) sections.push(`## Agent notes\n\n${narrative}\n`);
 sections.push(

@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, eq, done } from "./helper.mjs";
@@ -39,6 +41,24 @@ check("--json emits machine-readable results", () => {
   eq(typeof parsed.status, "string");
   eq(Array.isArray(parsed.items), true);
 });
+
+if (process.platform !== "win32") {
+  check("gate publishes the author walkthrough and withholds redaction hits", () => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), "garage-review-comment-"));
+    try {
+      const capture = path.join(tmp, "capture");
+      writeFileSync(path.join(tmp, "gh"), '#!/bin/sh\nif [ "$1" = api ]; then echo "[]"; else printf "%s\\n" "$@" > "$CAPTURE"; fi\n', { mode: 0o755 });
+      const env = { ...process.env, PATH: `${tmp}:${process.env.PATH}`, GH_TOKEN: "test", GITHUB_TOKEN: "test", CAPTURE: capture };
+      const invoke = (body) => execFileSync("node", [gate, "--root", okRoot, "--changed-paths", "src/a.ts", "--pr", "12", "--pr-body", body], { encoding: "utf8", env });
+      invoke("## Change and verification walkthrough\nBefore: old behavior. After: corrected. Test: local demo passed. Limits: production not checked.");
+      const comment = readFileSync(capture, "utf8");
+      if (!comment.includes("local demo passed") || !comment.includes("gate has not verified")) throw new Error(comment);
+      invoke("## Change and verification walkthrough\nContact: test@example.com");
+      const redacted = readFileSync(capture, "utf8");
+      if (!redacted.includes("withheld by redaction guard") || redacted.includes("test@example.com")) throw new Error(redacted);
+    } finally { rmSync(tmp, { recursive: true, force: true }); }
+  });
+}
 
 check("gate disabled (intake profile) exits 0 with skip message", () => {
   const r = run([

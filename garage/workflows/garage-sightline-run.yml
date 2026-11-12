@@ -1,0 +1,36 @@
+name: Garage / Sightline run
+
+on:
+  workflow_dispatch:
+    inputs:
+      pending_ref:
+        description: Pending issue reference from Sightline intake
+        required: true
+        type: string
+      request_ref:
+        description: Reference to a separately approved request in the trusted registry
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    if: ${{ vars.GARAGE_SIGHTLINE_PORT != '' }}
+    runs-on: ${{ vars.GARAGE_SIGHTLINE_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Queue an already approved request
+        env:
+          GARAGE_SIGHTLINE_PORT: ${{ vars.GARAGE_SIGHTLINE_PORT }}
+          GARAGE_SIGHTLINE_TOKEN: ${{ secrets.GARAGE_SIGHTLINE_TOKEN }}
+          PENDING_REF: ${{ inputs.pending_ref }}
+          REQUEST_REF: ${{ inputs.request_ref }}
+        run: node .github/garage/sightline-client.mjs run --pending-ref "$PENDING_REF" --request-ref "$REQUEST_REF"
