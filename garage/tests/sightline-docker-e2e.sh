@@ -26,10 +26,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-docker build -q -f "$sightline/Dockerfile.verifier" -t "$verifier_image" "$sightline" >/dev/null
-docker build -q -f "$sightline/verification/pilot/Dockerfile" -t "$lab_image" "$sightline/verification/pilot" >/dev/null
-docker build -q -f "$sightline/Dockerfile.copilot" -t "$copilot_image" "$sightline" >/dev/null
-docker build -q -f "$sightline/verification/copilot/Dockerfile.fake-model" -t "$model_image" "$sightline/verification/copilot" >/dev/null
+docker build -q -f "$sightline/containers/verification/Dockerfile.verifier" -t "$verifier_image" "$sightline" >/dev/null
+docker build -q -f "$sightline/test/verification-pilot/Dockerfile" -t "$lab_image" "$sightline/test/verification-pilot" >/dev/null
+docker build -q -f "$sightline/containers/verification/Dockerfile.copilot" -t "$copilot_image" "$sightline" >/dev/null
+docker build -q -f "$sightline/test/verification-copilot/Dockerfile.fake-model" -t "$model_image" "$sightline/test/verification-copilot" >/dev/null
 network="$(docker network create --internal "sightline-e2e-$suffix")"
 provider_network="$(docker network create --internal "sightline-e2e-provider-$suffix")"
 model="$(docker run -d --network "$provider_network" --network-alias fake-model --read-only --cap-drop ALL \
@@ -80,7 +80,7 @@ pending_ref="$(python3 -c 'import json,sys; value=json.loads(sys.argv[1]); asser
 
 for phase in baseline candidate; do
     input="$work/$phase"
-    PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/verification/pilot/make_records.py" "$phase" "$input" --revision "$revision"
+    PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/test/verification-pilot/make_records.py" "$phase" "$input" --revision "$revision"
     mode="$(git -C "$work/service" show "$revision:src/lab-mode")"
     lab="$(docker run -d --network "$network" --network-alias lab --read-only --cap-drop ALL \
         --security-opt no-new-privileges --pids-limit 64 --memory 128m -e "LAB_MODE=$mode" "$lab_image")"
@@ -144,7 +144,7 @@ for phase in baseline candidate; do
             echo "A duplicate with changed records unexpectedly succeeded." >&2; exit 1
         fi
         denied="$work/denied"
-        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/verification/pilot/make_records.py" baseline "$denied"
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/test/verification-pilot/make_records.py" baseline "$denied"
         python3 - "$denied" <<'PY'
 import json, pathlib, sys
 root = pathlib.Path(sys.argv[1])
@@ -164,7 +164,7 @@ PY
         fi
         python3 -c 'import json,sys; assert json.loads(sys.argv[1])["state"] == "blocked"' "$rejected"
         no_provider="$work/no-provider"
-        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/verification/pilot/make_records.py" baseline "$no_provider"
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/test/verification-pilot/make_records.py" baseline "$no_provider"
         python3 - "$no_provider" <<'PY'
 import json, pathlib, sys
 root = pathlib.Path(sys.argv[1])

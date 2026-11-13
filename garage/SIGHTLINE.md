@@ -89,7 +89,7 @@ request, result, and narrower standalone demo.
 ### Browser checks
 
 The local coordinator also supports an explicitly selected `browser` profile.
-Build Sightline's `Dockerfile.verifier-browser` and supply that image with
+Build Sightline's `containers/verification/Dockerfile.verifier-browser` and supply that image with
 `--profile browser` to `sightline.mjs run`, or set `verifier_profile` to
 `browser` in the trusted local service configuration. The default remains
 `http`. Selection is an operator setting, never an issue-supplied command.
@@ -157,8 +157,8 @@ Omit both Copilot fields for a model-free run. The target network must be an
 existing Docker internal network; the optional provider network must be a
 different network with independently enforced egress restrictions. The
 `synthetic_provider` switch is for the fake-model test only. Build the two
-images from the Sightline checkout with `docker build -f Dockerfile.verifier`
-and `docker build -f Dockerfile.copilot`, assigning the reviewed tags used in
+images from the Sightline checkout with `docker build -f containers/verification/Dockerfile.verifier`
+and `docker build -f containers/verification/Dockerfile.copilot`, assigning the reviewed tags used in
 the configuration.
 
 Provide a strong, unique service token of 32–256 characters through a secure

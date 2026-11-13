@@ -12,7 +12,7 @@ cleanup() {
   rm -rf -- "$work"
 }
 trap cleanup EXIT
-docker build -q -f "$sightline/Dockerfile.verifier-browser" -t "$image" "$sightline" >/dev/null
+docker build -q -f "$sightline/containers/verification/Dockerfile.verifier-browser" -t "$image" "$sightline" >/dev/null
 network="$(docker network create --internal "sightline-garage-browser-$$-$RANDOM")"
 mkdir -p "$work/results"
 cat > "$work/pending.json" <<'JSON'
@@ -20,9 +20,9 @@ cat > "$work/pending.json" <<'JSON'
 JSON
 for phase in baseline candidate; do
   input="$work/$phase"
-  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/verification/pilot/make_browser_records.py" "$phase" "$input"
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$sightline" python3 "$sightline/test/verification-pilot/make_browser_records.py" "$phase" "$input"
   lab="$(docker run -d --network "$network" --network-alias lab --read-only --cap-drop ALL --security-opt no-new-privileges \
-    -e "LAB_MODE=$phase" --mount "type=bind,src=$sightline/verification/pilot/browser_lab.py,dst=/lab.py,readonly" python:3.12-slim python /lab.py)"
+    -e "LAB_MODE=$phase" --mount "type=bind,src=$sightline/test/verification-pilot/browser_lab.py,dst=/lab.py,readonly" python:3.12-slim python /lab.py)"
   for _ in $(seq 1 40); do
     if docker exec "$lab" python -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/control", timeout=1)' >/dev/null 2>&1; then break; fi
     sleep .25
